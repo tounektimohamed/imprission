@@ -218,7 +218,7 @@ def generate_pdf():
             current_date=current_date
         )
 
-        # Générer le PDF à partir du HTML
+   # Générer le PDF à partir du HTML
         html = HTML(string=html_content)
         pdf_bytes = html.write_pdf()
 
@@ -232,6 +232,6 @@ def generate_pdf():
     except Exception as e:
         # Gérer les erreurs et retourner une réponse d'erreur
         return make_response(f"Erreur lors de la génération du PDF : {str(e)}", 500)
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
