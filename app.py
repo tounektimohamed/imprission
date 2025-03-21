@@ -24,95 +24,95 @@ def generate_pdf():
         html_content = """
 <html lang="ar" dir="rtl">
     <head>
-        <meta charset="UTF-8">
-        <style>
-            body {{
-                font-family: 'Noto Naskh Arabic', sans-serif;
-                margin: 0;
-                padding: 20px;
-                color: #333;
-                line-height: 1.6;
-            }}
-            h1 {{
-                text-align: center;
-                font-weight: bold;
-                font-size: 24px;
-                color: #003366;
-                margin-bottom: 20px;
-            }}
-            h2 {{
-                font-size: 20px;
-                color: #003366;
-                margin-top: 30px;
-                margin-bottom: 15px;
-            }}
-            .header {{
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-                direction: rtl;
-                padding: 20px;
-                background-color: #f9f9f9;
-                border-bottom: 2px solid #003366;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }}
-            .header img {{
-                max-width: 120px;
-                height: auto;
-            }}
-            .header-left {{
-                text-align: left;
-            }}
-            .header-center {{
-                text-align: center;
-                flex: 1;
-            }}
-            .header-right {{
-                text-align: right;
-            }}
-            .info {{
-                margin-top: 10px;
-                font-size: 16px;
-                color: #555;
-            }}
-            .info p {{
-                margin: 5px 0;
-            }}
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-                text-align: center;
-            }}
-            table, th, td {{
-                border: 1px solid #003366;
-                padding: 10px;
-                text-align: center;
-            }}
-            th {{
-                font-weight: bold;
-                background-color: #003366;
-                color: white;
-            }}
-            tr:nth-child(even) {{
-                background-color: #f2f2f2;
-            }}
-            tr:nth-child(odd) {{
-                background-color: #ffffff;
-            }}
-            .footer {{
-                text-align: center;
-                margin-top: 30px;
-                font-size: 14px;
-                color: #666;
-                padding-top: 20px;
-                border-top: 1px solid #ddd;
-            }}
-            .page-break {{
-                page-break-before: always;
-            }}
-        </style>
+       <meta charset="UTF-8">
+            <style>
+                body {{
+                    font-family: 'Noto Naskh Arabic', sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    color: #333;
+                    line-height: 1.6;
+                }}
+                h1 {{
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 24px;
+                    color: #003366;
+                    margin-bottom: 20px;
+                }}
+                h2 {{
+                    font-size: 20px;
+                    color: #003366;
+                    margin-top: 30px;
+                    margin-bottom: 15px;
+                }}
+                .header {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    direction: rtl;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    border-bottom: 2px solid #003366;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }}
+                .header img {{
+                    max-width: 120px;
+                    height: auto;
+                }}
+                .header-left {{
+                    text-align: left;
+                }}
+                .header-center {{
+                    text-align: center;
+                    flex: 1;
+                }}
+                .header-right {{
+                    text-align: right;
+                }}
+                .info {{
+                    margin-top: 10px;
+                    font-size: 16px;
+                    color: #555;
+                }}
+                .info p {{
+                    margin: 5px 0;
+                }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                    text-align: center;
+                }}
+                table, th, td {{
+                    border: 1px solid #003366;
+                    padding: 10px;
+                    text-align: center;
+                }}
+                th {{
+                    font-weight: bold;
+                    background-color: #003366;
+                    color: white;
+                }}
+                tr:nth-child(even) {{
+                    background-color: #f2f2f2;
+                }}
+                tr:nth-child(odd) {{
+                    background-color: #ffffff;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 30px;
+                    font-size: 14px;
+                    color: #666;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
+                }}
+                .page-break {{
+                    page-break-before: always;
+                }}
+            </style>
     </head>
     <body>
         <!-- En-tête avec le logo du ministère et le texte -->
