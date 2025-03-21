@@ -20,7 +20,7 @@ def generate_pdf():
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Préparer le contenu HTML avec les notes des élèves
-    html_content = f"""
+    html_content = """
 <html lang="ar" dir="rtl">
     <head>
         <meta charset="UTF-8">
@@ -118,9 +118,9 @@ def generate_pdf():
         <div class="header">
             <!-- Côté gauche : الصف, المادة, et الأستاذ -->
             <div class="header-left" dir="rtl">
-                <p><strong>القسم:</strong> {data['className']}</p>
-                <p><strong>المادة:</strong> {data['matiereName']}</p>
-                <p><strong>الأستاذ:</strong> {data['profName']}</p>
+                <p><strong>القسم:</strong> {className}</p>
+                <p><strong>المادة:</strong> {matiereName}</p>
+                <p><strong>الأستاذ:</strong> {profName}</p>
             </div>
 
             <!-- Centre : Titre "جدول النتائج" -->
@@ -131,7 +131,7 @@ def generate_pdf():
             <!-- Côté droit : Logo et nom de l'école -->
             <div class="header-right" dir="rtl">
                 <img src="file:///{logo_path}" alt="Logo du Ministère de l'Éducation">
-                <p><strong>المدرسة:</strong> {data['schoolName']}</p>
+                <p><strong>المدرسة:</strong> {schoolName}</p>
             </div>
         </div>
 
@@ -141,16 +141,11 @@ def generate_pdf():
             <thead>
                 <tr>
                     <th>الاسم واللقب</th>
-                    {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
+                    {baremesHeaders}
                 </tr>
             </thead>
             <tbody>
-                {''.join([f"""
-                    <tr>
-                        <td>{student['name']}</td>
-                        {''.join([f'<td>{student["baremes"].get(bareme["id"], "( - - - )")}</td>' for bareme in data['baremes']])}
-                    </tr>
-                """ for student in data['students']])}
+                {studentsRows}
             </tbody>
         </table>
 
@@ -160,13 +155,13 @@ def generate_pdf():
             <thead>
                 <tr>
                     <th> </th>
-                    {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
+                    {baremesHeaders}
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>عدد التلاميذ المحققين للتملك</td>
-                    {''.join([f'<td>{data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)}</td>' for bareme in data['baremes']])}
+                    {sumCriteriaMaxPerBaremeCells}
                 </tr>
             </tbody>
         </table>
@@ -177,13 +172,13 @@ def generate_pdf():
             <thead>
                 <tr>
                     <th> </th>
-                    {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
+                    {baremesHeaders}
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>النسبة المئوية للتلاميذ المحققين للتملك</td>
-                    {''.join([f'<td>{(data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0) / data["totalStudents"]) * 100:.2f}%</td>' for bareme in data['baremes']])}
+                    {percentageCells}
                 </tr>
             </tbody>
         </table>
@@ -195,7 +190,33 @@ def generate_pdf():
         </div>
     </body>
 </html>
-"""
+""".format(
+        className=data['className'],
+        matiereName=data['matiereName'],
+        profName=data['profName'],
+        schoolName=data['schoolName'],
+        logo_path=logo_path,
+        baremesHeaders=''.join(['<th>{}</th>'.format(bareme['value']) for bareme in data['baremes']]),
+        studentsRows=''.join([
+            """
+            <tr>
+                <td>{}</td>
+                {}
+            </tr>
+            """.format(
+                student['name'],
+                ''.join(['<td>{}</td>'.format(student['baremes'].get(bareme['id'], '( - - - )')) for bareme in data['baremes']])
+            ) for student in data['students']
+        ]),
+        sumCriteriaMaxPerBaremeCells=''.join([
+            '<td>{}</td>'.format(data['sumCriteriaMaxPerBareme'].get(bareme['id'], 0)) for bareme in data['baremes']
+        ]),
+        percentageCells=''.join([
+            '<td>{:.2f}%</td>'.format((data['sumCriteriaMaxPerBareme'].get(bareme['id'], 0) / data['totalStudents']) * 100) for bareme in data['baremes']
+        ]),
+        current_date=current_date
+    )
+
     # Générer le PDF à partir du HTML
     html = HTML(string=html_content)
     pdf = html.write_pdf()
