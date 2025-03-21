@@ -10,17 +10,18 @@ CORS(app)
 
 @app.route('/generate_pdf', methods=['POST'])
 def generate_pdf():
-    # Récupérer les données JSON envoyées par Flutter
-    data = request.json
+    try:
+        # Récupérer les données JSON envoyées par Flutter
+        data = request.json
 
-    # Chemin absolu du logo (dans le même répertoire que l'application Flask)
-    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ministere.png')
+        # Chemin absolu du logo (dans le même répertoire que l'application Flask)
+        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ministere.png')
 
-    # Date actuelle pour le pied de page
-    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Date actuelle pour le pied de page
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Préparer le contenu HTML avec les notes des élèves
-    html_content = """
+        # Préparer le contenu HTML avec les notes des élèves
+        html_content = """
 <html lang="ar" dir="rtl">
     <head>
         <meta charset="UTF-8">
@@ -191,42 +192,46 @@ def generate_pdf():
     </body>
 </html>
 """.format(
-        className=data['className'],
-        matiereName=data['matiereName'],
-        profName=data['profName'],
-        schoolName=data['schoolName'],
-        logo_path=logo_path,
-        baremesHeaders=''.join(['<th>{}</th>'.format(bareme['value']) for bareme in data['baremes']]),
-        studentsRows=''.join([
-            """
-            <tr>
-                <td>{}</td>
-                {}
-            </tr>
-            """.format(
-                student['name'],
-                ''.join(['<td>{}</td>'.format(student['baremes'].get(bareme['id'], '( - - - )')) for bareme in data['baremes']])
-            ) for student in data['students']
-        ]),
-        sumCriteriaMaxPerBaremeCells=''.join([
-            '<td>{}</td>'.format(data['sumCriteriaMaxPerBareme'].get(bareme['id'], 0)) for bareme in data['baremes']
-        ]),
-        percentageCells=''.join([
-            '<td>{:.2f}%</td>'.format((data['sumCriteriaMaxPerBareme'].get(bareme['id'], 0) / data['totalStudents']) * 100) for bareme in data['baremes']
-        ]),
-        current_date=current_date
-    )
+            className=data['className'],
+            matiereName=data['matiereName'],
+            profName=data['profName'],
+            schoolName=data['schoolName'],
+            logo_path=logo_path,
+            baremesHeaders=''.join(['<th>{}</th>'.format(bareme['value']) for bareme in data['baremes']]),
+            studentsRows=''.join([
+                """
+                <tr>
+                    <td>{}</td>
+                    {}
+                </tr>
+                """.format(
+                    student['name'],
+                    ''.join(['<td>{}</td>'.format(student['baremes'].get(bareme['id'], '( - - - )')) for bareme in data['baremes']])
+                ) for student in data['students']
+            ]),
+            sumCriteriaMaxPerBaremeCells=''.join([
+                '<td>{}</td>'.format(data['sumCriteriaMaxPerBareme'].get(bareme['id'], 0)) for bareme in data['baremes']
+            ]),
+            percentageCells=''.join([
+                '<td>{:.2f}%</td>'.format((data['sumCriteriaMaxPerBareme'].get(bareme['id'], 0) / data['totalStudents']) * 100) for bareme in data['baremes']
+            ]),
+            current_date=current_date
+        )
 
-    # Générer le PDF à partir du HTML
-    html = HTML(string=html_content)
-    pdf = html.write_pdf()
+        # Générer le PDF à partir du HTML
+        html = HTML(string=html_content)
+        pdf_bytes = html.write_pdf()
 
-    # Retourner le PDF en tant que réponse pour le téléchargement
-    response = make_response(pdf)
-    response.headers.set('Content-Disposition', 'attachment', filename='tableau_resultats.pdf')
-    response.headers.set('Content-Type', 'application/pdf')
+        # Retourner le PDF en tant que réponse pour le téléchargement
+        response = make_response(pdf_bytes)
+        response.headers.set('Content-Disposition', 'attachment', filename='tableau_resultats.pdf')
+        response.headers.set('Content-Type', 'application/pdf')
 
-    return response
+        return response
+
+    except Exception as e:
+        # Gérer les erreurs et retourner une réponse d'erreur
+        return make_response(f"Erreur lors de la génération du PDF : {str(e)}", 500)
 
 if __name__ == '__main__':
     app.run(debug=True)
