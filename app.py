@@ -201,11 +201,6 @@ def generate_pdf():
     html = HTML(string=html_content)
     pdf = html.write_pdf()
 
-    # Sauvegarder le PDF dans un fichier
-    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tableau_resultats.pdf')
-    with open(output_path, 'wb') as f:
-        f.write(pdf)
-
     # Retourner le PDF en tant que réponse pour le téléchargement
     response = make_response(pdf)
     response.headers.set('Content-Disposition', 'attachment', filename='tableau_resultats.pdf')
@@ -214,7 +209,4 @@ def generate_pdf():
     return response
 
 if __name__ == '__main__':
-    # Créer le dossier "pdfs" s'il n'existe pas
-    if not os.path.exists('pdfs'):
-        os.makedirs('pdfs')
     app.run(debug=True)
