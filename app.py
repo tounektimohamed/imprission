@@ -21,182 +21,181 @@ def generate_pdf():
 
     # Préparer le contenu HTML avec les notes des élèves
     html_content = f"""
-    <html lang="ar" dir="rtl">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{
-                    font-family: 'Noto Naskh Arabic', sans-serif;
-                    margin: 0;
-                    padding: 20px;
-                    color: #333;
-                    line-height: 1.6;
-                }}
-                h1 {{
-                    text-align: center;
-                    font-weight: bold;
-                    font-size: 24px;
-                    color: #003366;
-                    margin-bottom: 20px;
-                }}
-                h2 {{
-                    font-size: 20px;
-                    color: #003366;
-                    margin-top: 30px;
-                    margin-bottom: 15px;
-                }}
-                .header {{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 30px;
-                    direction: rtl;
-                    padding: 20px;
-                    background-color: #f9f9f9;
-                    border-bottom: 2px solid #003366;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }}
-                .header img {{
-                    max-width: 120px;
-                    height: auto;
-                }}
-                .header-left {{
-                    text-align: left;
-                }}
-                .header-center {{
-                    text-align: center;
-                    flex: 1;
-                }}
-                .header-right {{
-                    text-align: right;
-                }}
-                .info {{
-                    margin-top: 10px;
-                    font-size: 16px;
-                    color: #555;
-                }}
-                .info p {{
-                    margin: 5px 0;
-                }}
-                table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-bottom: 20px;
-                    text-align: center;
-                }}
-                table, th, td {{
-                    border: 1px solid #003366;
-                    padding: 10px;
-                    text-align: center;
-                }}
-                th {{
-                    font-weight: bold;
-                    background-color: #003366;
-                    color: white;
-                }}
-                tr:nth-child(even) {{
-                    background-color: #f2f2f2;
-                }}
-                tr:nth-child(odd) {{
-                    background-color: #ffffff;
-                }}
-                .footer {{
-                    text-align: center;
-                    margin-top: 30px;
-                    font-size: 14px;
-                    color: #666;
-                    padding-top: 20px;
-                    border-top: 1px solid #ddd;
-                }}
-                .page-break {{
-                    page-break-before: always;
-                }}
-            </style>
-        </head>
-        <body>
-            <!-- En-tête avec le logo du ministère et le texte -->
-            <div class="header">
-                <!-- Côté gauche : الصف, المادة, et الأستاذ -->
-                <div class="header-left" dir="rtl">
-                    <p><strong>القسم:</strong> {data['className']}</p>
-                    <p><strong>المادة:</strong> {data['matiereName']}</p>
-                    <p><strong>الأستاذ:</strong> {data['profName']}</p>
-                </div>
-
-                <!-- Centre : Titre "جدول النتائج" -->
-                <div class="header-center">
-                    <h1> الجدول الجامع للنتائج</h1>
-                </div>
-
-                <!-- Côté droit : Logo et nom de l'école -->
-                <div class="header-right" dir="rtl">
-                    <img src="file:///{logo_path}" alt="Logo du Ministère de l'Éducation">
-                    <p><strong>المدرسة:</strong> {data['schoolName']}</p>
-                </div>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{
+                font-family: 'Noto Naskh Arabic', sans-serif;
+                margin: 0;
+                padding: 20px;
+                color: #333;
+                line-height: 1.6;
+            }}
+            h1 {{
+                text-align: center;
+                font-weight: bold;
+                font-size: 24px;
+                color: #003366;
+                margin-bottom: 20px;
+            }}
+            h2 {{
+                font-size: 20px;
+                color: #003366;
+                margin-top: 30px;
+                margin-bottom: 15px;
+            }}
+            .header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                direction: rtl;
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-bottom: 2px solid #003366;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }}
+            .header img {{
+                max-width: 120px;
+                height: auto;
+            }}
+            .header-left {{
+                text-align: left;
+            }}
+            .header-center {{
+                text-align: center;
+                flex: 1;
+            }}
+            .header-right {{
+                text-align: right;
+            }}
+            .info {{
+                margin-top: 10px;
+                font-size: 16px;
+                color: #555;
+            }}
+            .info p {{
+                margin: 5px 0;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                text-align: center;
+            }}
+            table, th, td {{
+                border: 1px solid #003366;
+                padding: 10px;
+                text-align: center;
+            }}
+            th {{
+                font-weight: bold;
+                background-color: #003366;
+                color: white;
+            }}
+            tr:nth-child(even) {{
+                background-color: #f2f2f2;
+            }}
+            tr:nth-child(odd) {{
+                background-color: #ffffff;
+            }}
+            .footer {{
+                text-align: center;
+                margin-top: 30px;
+                font-size: 14px;
+                color: #666;
+                padding-top: 20px;
+                border-top: 1px solid #ddd;
+            }}
+            .page-break {{
+                page-break-before: always;
+            }}
+        </style>
+    </head>
+    <body>
+        <!-- En-tête avec le logo du ministère et le texte -->
+        <div class="header">
+            <!-- Côté gauche : الصف, المادة, et الأستاذ -->
+            <div class="header-left" dir="rtl">
+                <p><strong>القسم:</strong> {data['className']}</p>
+                <p><strong>المادة:</strong> {data['matiereName']}</p>
+                <p><strong>الأستاذ:</strong> {data['profName']}</p>
             </div>
 
-            <!-- Tableau des notes des élèves -->
-            <h2>النتائج</h2>
-            <table dir="rtl">
-                <thead>
-                    <tr>
-                        <th>الاسم واللقب</th>
-                        {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
-                    </tr>
-                </thead>
-                <tbody>
-                    {''.join([f"""
-                        <tr>
-                            <td>{student['name']}</td>
-                            {''.join([f'<td>{student["baremes"].get(bareme["id"], "( - - - )")}</td>' for bareme in data['baremes']])}
-                        </tr>
-                    """ for student in data['students']])}
-                </tbody>
-            </table>
-
-            <!-- Tableau du nombre d'élèves ayant atteint le maximum -->
-            <h2>عدد التلاميذ المحققين للتملك</h2>
-            <table dir="rtl">
-                <thead>
-                    <tr>
-                        <th> </th>
-                        {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>عدد التلاميذ المحققين للتملك</td>
-                        {''.join([f'<td>{data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)}</td>' for bareme in data['baremes']])}
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Tableau des pourcentages -->
-            <h2>النسبة المئوية للتلاميذ المحققين للتملك</h2>
-            <table dir="rtl">
-                <thead>
-                    <tr>
-                        <th> </th>
-                        {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>النسبة المئوية للتلاميذ المحققين للتملك</td>
-                        {''.join([f'<td>{(data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0) / data["totalStudents"]) * 100:.2f}%</td>' for bareme in data['baremes']])}
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Pied de page -->
-            <div class="footer" dir="rtl">
-                <p>تم إنشاء هذا التقرير تلقائياً بواسطة نظام Taqyem</p>
-                <p>تاريخ الطباعة: {current_date}</p>
+            <!-- Centre : Titre "جدول النتائج" -->
+            <div class="header-center">
+                <h1> الجدول الجامع للنتائج</h1>
             </div>
-        </body>
-    </html>
-    """
 
+            <!-- Côté droit : Logo et nom de l'école -->
+            <div class="header-right" dir="rtl">
+                <img src="file:///{logo_path}" alt="Logo du Ministère de l'Éducation">
+                <p><strong>المدرسة:</strong> {data['schoolName']}</p>
+            </div>
+        </div>
+
+        <!-- Tableau des notes des élèves -->
+        <h2>النتائج</h2>
+        <table dir="rtl">
+            <thead>
+                <tr>
+                    <th>الاسم واللقب</th>
+                    {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
+                </tr>
+            </thead>
+            <tbody>
+                {''.join([f"""
+                    <tr>
+                        <td>{student['name']}</td>
+                        {''.join([f'<td>{student["baremes"].get(bareme["id"], "( - - - )")}</td>' for bareme in data['baremes']])}
+                    </tr>
+                """ for student in data['students']])}
+            </tbody>
+        </table>
+
+        <!-- Tableau du nombre d'élèves ayant atteint le maximum -->
+        <h2>عدد التلاميذ المحققين للتملك</h2>
+        <table dir="rtl">
+            <thead>
+                <tr>
+                    <th> </th>
+                    {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>عدد التلاميذ المحققين للتملك</td>
+                    {''.join([f'<td>{data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)}</td>' for bareme in data['baremes']])}
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Tableau des pourcentages -->
+        <h2>النسبة المئوية للتلاميذ المحققين للتملك</h2>
+        <table dir="rtl">
+            <thead>
+                <tr>
+                    <th> </th>
+                    {''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>النسبة المئوية للتلاميذ المحققين للتملك</td>
+                    {''.join([f'<td>{(data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0) / data["totalStudents"]) * 100:.2f}%</td>' for bareme in data['baremes']])}
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pied de page -->
+        <div class="footer" dir="rtl">
+            <p>تم إنشاء هذا التقرير تلقائياً بواسطة نظام Taqyem</p>
+            <p>تاريخ الطباعة: {current_date}</p>
+        </div>
+    </body>
+</html>
+"""
     # Générer le PDF à partir du HTML
     html = HTML(string=html_content)
     pdf = html.write_pdf()
