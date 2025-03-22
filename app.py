@@ -1,3 +1,13 @@
+from flask import Flask, request, make_response
+from flask_cors import CORS
+from weasyprint import HTML
+from io import BytesIO
+import os
+from datetime import datetime
+
+app = Flask(__name__)
+CORS(app)
+
 @app.route('/generate_pdf', methods=['POST'])
 def generate_pdf():
     try:
@@ -10,7 +20,7 @@ def generate_pdf():
         # Date actuelle pour le pied de page
         current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Préparer le contenu HTML avec la page de garde et les notes des élèves
+        # Préparer le contenu HTML avec les notes des élèves
         html_content = """
 <html lang="ar" dir="rtl">
     <head>
@@ -102,34 +112,11 @@ def generate_pdf():
                 .page-break {{
                     page-break-before: always;
                 }}
-                .cover-page {{
-                    text-align: center;
-                    margin-top: 100px;
-                }}
-                .cover-page h1 {{
-                    font-size: 36px;
-                    color: #003366;
-                    margin-bottom: 20px;
-                }}
-                .cover-page p {{
-                    font-size: 18px;
-                    color: #555;
-                    margin: 10px 0;
-                }}
             </style>
     </head>
     <body>
-        <!-- Page de garde -->
-        <div class="cover-page">
-            <h1>ملف التقییم والمتابعة</h1>
-            <p><strong>القسم:</strong> {className}</p>
-            <p><strong>المادة:</strong> {matiereName}</p>
-            <p><strong>الأستاذ:</strong> {profName}</p>
-            <p><strong>المدرسة:</strong> {schoolName}</p>
-        </div>
-
         <!-- En-tête avec le logo du ministère et le texte -->
-        <div class="header page-break">
+        <div class="header">
             <!-- Côté gauche : الصف, المادة, et الأستاذ -->
             <div class="header-left" dir="rtl">
                 <p><strong>القسم:</strong> {className}</p>
@@ -231,7 +218,7 @@ def generate_pdf():
             current_date=current_date
         )
 
-        # Générer le PDF à partir du HTML
+   # Générer le PDF à partir du HTML
         html = HTML(string=html_content)
         pdf_bytes = html.write_pdf()
 
