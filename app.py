@@ -240,4 +240,4 @@ def generate_html_report():
         return make_response(f"Erreur lors de la génération du rapport: {str(e)}", 500)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
