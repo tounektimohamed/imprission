@@ -7,11 +7,71 @@ import base64
 app = Flask(__name__)
 CORS(app)
 
+# Dictionnaire de traduction
+TRANSLATIONS = {
+    'ar': {
+        'title': 'تقرير النتائج',
+        'professor': 'الأستاذ',
+        'subject': 'المادة',
+        'class': 'القسم',
+        'school': 'المؤسسة',
+        'main_title': 'الجدول الجامع للنتائج',
+        'student_name': 'الاسم واللقب',
+        'achieved_students': 'عدد التلاميذ المحققين',
+        'percentage': 'النسبة المئوية',
+        'print_button': 'طباعة التقرير',
+        'generated_by': 'تم إنشاء التقرير بواسطة نظام تقييم',
+        'unknown': 'غير معروف',
+        'no_data': 'لا توجد بيانات'
+    },
+    'fr': {
+        'title': 'Rapport des Résultats',
+        'professor': 'Professeur',
+        'subject': 'Matière',
+        'class': 'Classe',
+        'school': 'Établissement',
+        'main_title': 'Tableau Global des Résultats',
+        'student_name': 'Nom et Prénom',
+        'achieved_students': 'Nombre d\'élèves ayant atteint',
+        'percentage': 'Pourcentage',
+        'print_button': 'Imprimer le Rapport',
+        'generated_by': 'Rapport généré par le système d\'évaluation',
+        'unknown': 'Inconnu',
+        'no_data': 'Aucune donnée'
+    }
+}
+
+# Liste des matières considérées comme françaises
+FRENCH_SUBJECTS = [
+    "Expression orale et récitation",
+    "Lecture", 
+    "Production écrite",
+    "écriture",
+    "dictée",
+    "langue",
+    "لغة انقليزية"
+]
+
+def detect_language(matiere_name):
+    """Détecter la langue selon le nom de la matière"""
+    return 'fr' if matiere_name in FRENCH_SUBJECTS else 'ar'
+
+def get_translation(lang, key):
+    """Obtenir la traduction selon la langue"""
+    return TRANSLATIONS.get(lang, TRANSLATIONS['ar']).get(key, key)
+
 @app.route('/generate-html-report', methods=['POST'])
 def generate_html_report():
     try:
         # Récupérer les données JSON
         data = request.json
+
+        # Détecter la langue selon la matière
+        matiere_name = data.get('matiereName', '')
+        lang = detect_language(matiere_name)
+        
+        # Obtenir les traductions
+        t = lambda key: get_translation(lang, key)
 
         # Encoder le logo en base64
         logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ministere.png')
@@ -37,17 +97,26 @@ def generate_html_report():
         sum_cells = ''.join([f'<td>{data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)}</td>' 
                            for bareme in data['baremes']])
         
-        percentage_cells = ''.join([f'<td>{((data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0) / data["totalStudents"]) * 100):.2f}%</td>' 
-                                  for bareme in data['baremes']])
+        # Calcul des pourcentages avec gestion des divisions par zéro
+        percentage_cells = ''
+        for bareme in data['baremes']:
+            achieved_count = data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)
+            total_students = data["totalStudents"]
+            percentage = (achieved_count / total_students * 100) if total_students > 0 else 0
+            percentage_cells += f'<td>{percentage:.2f}%</td>'
 
-            # Construction du HTML
+        # Déterminer la direction du texte
+        text_direction = "ltr" if lang == 'fr' else "rtl"
+        text_align = "left" if lang == 'fr' else "right"
+
+        # Construction du HTML
         html_content = f"""
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{lang}" dir="{text_direction}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقرير النتائج</title>
+    <title>{t('title')}</title>
     <style>
         /* Styles de base */
         body {{
@@ -81,7 +150,7 @@ def generate_html_report():
         .header-info {{
             flex: 1;
             min-width: 200px;
-            text-align: right;
+            text-align: {text_align};
         }}
         
         .header-title {{
@@ -92,7 +161,7 @@ def generate_html_report():
         .header-logo {{
             flex: 1;
             min-width: 150px;
-            text-align: left;
+            text-align: { "right" if lang == 'fr' else "left" };
         }}
         
         .header-text {{
@@ -176,48 +245,48 @@ def generate_html_report():
     </style>
 </head>
 <body>
-    <button class="print-btn" onclick="window.print()">طباعة التقرير</button>
+    <button class="print-btn" onclick="window.print()">{t('print_button')}</button>
 
     <div class="container">
         <!-- En-tête horizontal -->
         <div class="header">
             <div class="header-info">
-                <p class="header-text"><strong>الأستاذ:</strong> {data['profName']}</p>
-                <p class="header-text"><strong>المادة:</strong> {data['matiereName']}</p>
-                <p class="header-text"><strong>القسم:</strong> {data['className']}</p>
+                <p class="header-text"><strong>{t('professor')}:</strong> {data.get('profName', t('unknown'))}</p>
+                <p class="header-text"><strong>{t('subject')}:</strong> {data.get('matiereName', t('unknown'))}</p>
+                <p class="header-text"><strong>{t('class')}:</strong> {data.get('className', t('unknown'))}</p>
             </div>
             
             <div class="header-title">
-                <h2 style="margin:0;color:#075260;">الجدول الجامع للنتائج</h2>
+                <h2 style="margin:0;color:#075260;">{t('main_title')}</h2>
             </div>
             
             <div class="header-logo">
-                {f'<img src="data:image/png;base64,{logo_base64}" class="logo" alt="شعار الوزارة">' if logo_base64 else ''}
-                <p class="header-text"><strong>المؤسسة:</strong> {data['schoolName']}</p>
+                {f'<img src="data:image/png;base64,{logo_base64}" class="logo" alt="Logo">' if logo_base64 else ''}
+                <p class="header-text"><strong>{t('school')}:</strong> {data.get('schoolName', t('unknown'))}</p>
             </div>
         </div>
         
         <!-- Tableau principal -->
         <div class="table-container">
-            <table dir="rtl">
+            <table dir="{text_direction}">
                 <thead>
                     <tr>
-                        <th>الاسم واللقب</th>
+                        <th>{t('student_name')}</th>
                         {baremes_headers}
                     </tr>
                 </thead>
                 <tbody>
-                    {students_rows}
+                    {students_rows if students_rows else f'<tr><td colspan="{len(data["baremes"]) + 1}" style="text-align:center;">{t("no_data")}</td></tr>'}
                     
                     <!-- Ligne des statistiques -->
                     <tr style="background-color: #e9ecef;">
-                        <td><strong>عدد التلاميذ المحققين</strong></td>
+                        <td><strong>{t('achieved_students')}</strong></td>
                         {sum_cells}
                     </tr>
                     
                     <!-- Ligne des pourcentages -->
                     <tr style="background-color: #e9ecef;">
-                        <td><strong>النسبة المئوية</strong></td>
+                        <td><strong>{t('percentage')}</strong></td>
                         {percentage_cells}
                     </tr>
                 </tbody>
@@ -226,7 +295,7 @@ def generate_html_report():
         
         <!-- Pied de page -->
         <div style="text-align: center; margin-top: 15px; font-size: 12px;">
-            <p>تم إنشاء التقرير بواسطة نظام تقييم - {current_date}</p>
+            <p>{t('generated_by')} - {current_date}</p>
         </div>
     </div>
 </body>
