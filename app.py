@@ -41,20 +41,31 @@ TRANSLATIONS = {
     }
 }
 
-# Liste des matières considérées comme françaises
-FRENCH_SUBJECTS = [
-    "Expression orale et récitation",
-    "Lecture", 
-    "Production écrite",
-    "écriture",
-    "dictée",
-    "langue",
-    "لغة انقليزية"
-]
-
 def detect_language(matiere_name):
-    """Détecter la langue selon le nom de la matière"""
-    return 'fr' if matiere_name in FRENCH_SUBJECTS else 'ar'
+    """Détecter la langue selon le nom de la matière avec une méthode plus robuste"""
+    if not matiere_name:
+        return 'ar'
+    
+    # Convertir en minuscules pour la comparaison
+    matiere_lower = matiere_name.lower()
+    
+    # Mots-clés qui indiquent une matière française
+    french_keywords = [
+        'expression orale', 'lecture', 'production écrite', 'écriture', 
+        'dictée', 'langue', 'anglais', 'français', 'english', 'french',
+        'oral', 'écrit', 'rédaction'
+    ]
+    
+    # Vérifier si la matière contient un mot-clé français
+    for keyword in french_keywords:
+        if keyword in matiere_lower:
+            return 'fr'
+    
+    # Vérifier si la matière contient des caractères arabes
+    # Les caractères arabes sont dans la plage Unicode \u0600-\u06FF
+    arabic_chars = any('\u0600' <= char <= '\u06FF' for char in matiere_name)
+    
+    return 'fr' if not arabic_chars else 'ar'
 
 def get_translation(lang, key):
     """Obtenir la traduction selon la langue"""
@@ -65,10 +76,14 @@ def generate_html_report():
     try:
         # Récupérer les données JSON
         data = request.json
+        print("Données reçues:", data)  # Debug
 
         # Détecter la langue selon la matière
         matiere_name = data.get('matiereName', '')
+        print("Nom de la matière:", matiere_name)  # Debug
+        
         lang = detect_language(matiere_name)
+        print("Langue détectée:", lang)  # Debug
         
         # Obtenir les traductions
         t = lambda key: get_translation(lang, key)
@@ -84,24 +99,26 @@ def generate_html_report():
         current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Génération des en-têtes de colonnes
-        baremes_headers = ''.join([f'<th>{bareme["value"]}</th>' for bareme in data['baremes']])
+        baremes_headers = ''.join([f'<th>{bareme["value"]}</th>' for bareme in data.get('baremes', [])])
         
         # Génération des lignes d'élèves
         students_rows = ''
-        for student in data['students']:
-            cells = ''.join([f'<td>{student["baremes"].get(bareme["id"], "( - - - )")}</td>' 
-                           for bareme in data['baremes']])
-            students_rows += f'<tr><td>{student["name"]}</td>{cells}</tr>'
+        students = data.get('students', [])
+        for student in students:
+            cells = ''.join([f'<td>{student.get("baremes", {}).get(bareme["id"], "( - - - )")}</td>' 
+                           for bareme in data.get('baremes', [])])
+            students_rows += f'<tr><td>{student.get("name", t("unknown"))}</td>{cells}</tr>'
         
         # Génération des statistiques
-        sum_cells = ''.join([f'<td>{data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)}</td>' 
-                           for bareme in data['baremes']])
+        sum_criteria = data.get('sumCriteriaMaxPerBareme', {})
+        sum_cells = ''.join([f'<td>{sum_criteria.get(bareme["id"], 0)}</td>' 
+                           for bareme in data.get('baremes', [])])
         
         # Calcul des pourcentages avec gestion des divisions par zéro
         percentage_cells = ''
-        for bareme in data['baremes']:
-            achieved_count = data["sumCriteriaMaxPerBareme"].get(bareme["id"], 0)
-            total_students = data["totalStudents"]
+        total_students = data.get('totalStudents', 0)
+        for bareme in data.get('baremes', []):
+            achieved_count = sum_criteria.get(bareme["id"], 0)
             percentage = (achieved_count / total_students * 100) if total_students > 0 else 0
             percentage_cells += f'<td>{percentage:.2f}%</td>'
 
@@ -161,7 +178,7 @@ def generate_html_report():
         .header-logo {{
             flex: 1;
             min-width: 150px;
-            text-align: { "right" if lang == 'fr' else "left" };
+            text-align: {"right" if lang == 'fr' else "left"};
         }}
         
         .header-text {{
@@ -276,7 +293,7 @@ def generate_html_report():
                     </tr>
                 </thead>
                 <tbody>
-                    {students_rows if students_rows else f'<tr><td colspan="{len(data["baremes"]) + 1}" style="text-align:center;">{t("no_data")}</td></tr>'}
+                    {students_rows if students_rows else f'<tr><td colspan="{len(data.get("baremes", [])) + 1}" style="text-align:center;">{t("no_data")}</td></tr>'}
                     
                     <!-- Ligne des statistiques -->
                     <tr style="background-color: #e9ecef;">
@@ -306,6 +323,7 @@ def generate_html_report():
         return response
 
     except Exception as e:
+        print("Erreur:", str(e))  # Debug
         return make_response(f"Erreur lors de la génération du rapport: {str(e)}", 500)
 
 if __name__ == "__main__":
